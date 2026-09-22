@@ -20,43 +20,37 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @EqualsAndHashCode(of = { "id" })
 @Entity
-@Table(name = "deportista")
-public class Deportista {
+@Table(name = "ciclista")
+public class Ciclista {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID")
+    @Column(name = "id")
     private int id;
-    @Column(name = "NOMBRE")
-    private String nombre;
-    @Column(name = "APELLIDO")
-    private String apellido;
-    @Column(name = "DEPORTE")
-    private Deporte deporte;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "deportista")
-    private List<Antropometria> listaAntropometrias;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "deportista")
+    @Column(name = "nombre_completo")
+    private String nombreCompleto;
+    @Column (name = "edad")
+    private int edad;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ciclista")
+    private List<PruebaEsfuerzo> listaPruebasEsfuerzo;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ciclista")
     private List<Entrenamiento> listaEntrenamientos;
 
-    public enum Deporte {
-        CICLISMO, ATLETISMO, TRIATLON, FUERZA
+
+    public Ciclista(String nombreCompleto, int edad) {
+        this.nombreCompleto = nombreCompleto;
+        this.edad = edad;
     }
 
-    public Deportista(String nombre, String apellido, Deporte deporte) {
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.deporte = deporte;
+    public static Ciclista of(String nombreCompleto, int edad) {
+        return new Ciclista(nombreCompleto, edad);
     }
 
-    public static Deportista of(String nombre, String apellido, Deporte deporte) {
-        return new Deportista(nombre, apellido, deporte);
-    }
-
-    public void addAntropometria(Antropometria antro) {
-        if (listaAntropometrias == null) {
-            listaAntropometrias = new ArrayList<Antropometria>();
+    public void addPruebaEsfuerzo(PruebaEsfuerzo prueba) {
+        if (listaPruebasEsfuerzo == null) {
+            listaPruebasEsfuerzo = new ArrayList<PruebaEsfuerzo>();
         }
-        listaAntropometrias.add(antro);
-        antro.setDeportista(this);
+        listaPruebasEsfuerzo.add(prueba);
+        prueba.setCiclista(this);
     }
 
     public void addEntrenamiento(Entrenamiento entto) {
@@ -64,13 +58,13 @@ public class Deportista {
             listaEntrenamientos = new ArrayList<Entrenamiento>();
         }
         listaEntrenamientos.add(entto);
-        entto.setDeportista(this);
+        entto.setCiclista(this);
     }
 
-    // public Antropometria findAntropometria(int dia, int mes, int año) {
+    // public Impedancia findImpedancia(int dia, int mes, int año) {
     //     var fechaToLocalDate = LocalDate.of(año, mes, dia);
-    //     return listaAntropometrias.stream()
-    //             .filter(antro -> antro.getFecha().isEqual(fechaToLocalDate))
+    //     return listaImpedancias.stream()
+    //             .filter(impedancia -> impedancia.getFecha().isEqual(fechaToLocalDate))
     //             .findFirst()
     //             .get();
     // }

@@ -2,74 +2,114 @@ package com.performancemeasurements.performance_measurement.Controllers;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
+import com.performancemeasurements.performance_measurement.DAO.CiclistaRepository;
 import com.performancemeasurements.performance_measurement.DAO.EntrenamientoRepository;
+import com.performancemeasurements.performance_measurement.entities.Ciclista;
 import com.performancemeasurements.performance_measurement.entities.Entrenamiento;
 
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 @RestController
-@RequestMapping("/entrenamiento")
+@RequestMapping("/ciclistas/{ciclistaId}/entrenamientos")
 public class EntrenamientoController {
-    
+
     @Autowired
-    private EntrenamientoRepository repo;
+    private EntrenamientoRepository entrenamientoRepository;
 
-    @GetMapping("/all")
-    public Flux<Entrenamiento> findAll(){
-        return Flux.fromIterable(repo.findAll());
+    @Autowired
+    private CiclistaRepository ciclistaRepository;
+
+    @GetMapping
+    public List<Entrenamiento> findByCiclista(
+            @PathVariable int ciclistaId) {
+
+        obtenerCiclista(ciclistaId);
+
+        return entrenamientoRepository.findByCiclistaId(ciclistaId);
     }
 
-    @GetMapping("/find/id/{id:\\d+}")
-    public Mono<Entrenamiento> findById(@PathVariable int id){
-        var ant = repo.findById(id);
-        if(ant.isEmpty()){
-            throw new RuntimeException("No existe el entrenamiento con id: " + id);
-        }
-        return Mono.just(ant.get());
+    @GetMapping("/{entrenamientoId}")
+    public Entrenamiento findById(
+            @PathVariable int ciclistaId,
+            @PathVariable int entrenamientoId) {
+
+        obtenerCiclista(ciclistaId);
+
+        return entrenamientoRepository
+                .findByIdAndCiclistaId(entrenamientoId, ciclistaId)
+                .orElseThrow(() ->
+                        new RuntimeException("No existe ese entrenamiento para el ciclista"));
     }
 
-    @GetMapping("/find/date/{fecha:\\\\d{4}-\\\\d{1,2}-\\\\d{1,2}}")
-    public Flux<Entrenamiento> findByDate(@PathVariable String fecha){
-        var fechaToLocalDate = LocalDate.parse(fecha, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-        var entto = repo.findByFecha(fechaToLocalDate);
-        if(entto.isEmpty()){
-            throw new RuntimeException("No existen registros para la fecha: " + fecha);
-        }
-        return Flux.fromIterable(entto);
+    @GetMapping("/fecha/{fecha}")
+    public List<Entrenamiento> findByFecha(
+            @PathVariable int ciclistaId,
+            @PathVariable String fecha) {
+
+        obtenerCiclista(ciclistaId);
+
+        LocalDate fechaLocal = LocalDate.parse(
+                fecha,
+                DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        );
+
+        return entrenamientoRepository
+                .findByCiclistaIdAndFecha(ciclistaId, fechaLocal);
     }
 
-    @PostMapping("/create")
-    public Mono<Entrenamiento> create(@RequestBody Entrenamiento entto){
-        repo.save(entto);
-        return Mono.just(entto);
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Entrenamiento create(
+            @PathVariable int ciclistaId,
+            @RequestBody Entrenamiento entrenamiento) {
+
+        Ciclista ciclista = obtenerCiclista(ciclistaId);
+
+        entrenamiento.setCiclista(ciclista);
+
+        return entrenamientoRepository.save(entrenamiento);
     }
 
-    @PutMapping("/update/{id:\\d+}")
-    public void update(@RequestBody Entrenamiento entto, @PathVariable int id){
-        entto.setId(id);
-        if(!repo.existsById(id)){
-            throw new RuntimeException("No existe el registro con id: " + id);
-        }
-        repo.save(entto);
+    @PutMapping("/{entrenamientoId}")
+    public Entrenamiento update(
+            @PathVariable int ciclistaId,
+            @PathVariable int entrenamientoId,
+            @RequestBody Entrenamiento nuevosDatos) {
+
+        Entrenamiento entrenamiento = entrenamientoRepository
+                .findByIdAndCiclistaId(entrenamientoId, ciclistaId)
+                .orElseThrow(() ->
+                        new RuntimeException("No existe ese entrenamiento para el ciclista"));
+
+        entrenamiento.setFecha(nuevosDatos.getFecha());
+        entrenamiento.setTiempoSesion(nuevosDatos.getTiempoSesion());
+        entrenamiento.setPotenciaMedia(nuevosDatos.getPotenciaMedia());
+        entrenamiento.setNP(nuevosDatos.getNP());
+
+        return entrenamientoRepository.save(entrenamiento);
     }
 
-    @DeleteMapping("/delete/{id:\\d+}")
-    public void delete(@PathVariable int id){
-        if(!repo.existsById(id)){
-            throw new RuntimeException("No existe el registro con id: " + id);
-        } 
-        repo.deleteById(id);
+    @DeleteMapping("/{entrenamientoId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(
+            @PathVariable int ciclistaId,
+            @PathVariable int entrenamientoId) {
+
+        Entrenamiento entrenamiento = entrenamientoRepository
+                .findByIdAndCiclistaId(entrenamientoId, ciclistaId)
+                .orElseThrow(() ->
+                        new RuntimeException("No existe ese entrenamiento para el ciclista"));
+
+        entrenamientoRepository.delete(entrenamiento);
+    }
+
+    private Ciclista obtenerCiclista(int ciclistaId) {
+        return ciclistaRepository.findById(ciclistaId)
+                .orElseThrow(() ->
+                        new RuntimeException("No existe el ciclista con id: " + ciclistaId));
     }
 }

@@ -2,9 +2,7 @@ package com.performancemeasurements.performance_measurement.entities;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,18 +27,18 @@ public class Entrenamiento {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID")
     private int id;
-    @Column(name = "FECHA")
+    @Column(name = "fecha")
     private LocalDate fecha;
-    @Column(name = "TIEMPO_SESION")
+    @Column(name = "tiempo_sesion")
     private LocalTime tiempoSesion; //en horas:minutos:segundos
-    @Column(name = "POTENCIA_MEDIA")
+    @Column(name = "potencia_media")
     private int potenciaMedia;
     @Column(name = "NP")
     private int NP;
     @JsonIgnore
-    @JoinColumn(name = "DEPORTISTA_ID")
+    @JoinColumn(name = "ciclista_Id")
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    private Deportista deportista;
+    private Ciclista ciclista;
 
     public Entrenamiento(LocalDate fecha, LocalTime tiempoSesion, int potenciaMedia, int np) {
         this.fecha = fecha;
