@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = { "id" })
 @Entity
 @Table(name = "prueba_esfuerzo")
-public class PruebaEsfuerzo {
+public class IncrementalTest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -34,12 +34,11 @@ public class PruebaEsfuerzo {
     private String vt1;
     @Column(name = "vt2")
     private String vt2;
-    @JsonIgnore
-    @JoinColumn(name = "ciclista_Id")
+    @JoinColumn(name = "cyclist_id")
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
-    private Ciclista ciclista;
+    private Cyclist cyclist;
 
-    public PruebaEsfuerzo(String date, String vo2max, String vt1, String vt2) {
+    public IncrementalTest(String date, String vo2max, String vt1, String vt2) {
         this.date = date;
         this.vo2max = vo2max;
         this.vt1 = vt1;

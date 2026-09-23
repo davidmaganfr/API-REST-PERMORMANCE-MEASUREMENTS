@@ -3,6 +3,8 @@ package com.performancemeasurements.performance_measurement.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.performancemeasurements.performance_measurement.DTO.CyclistDTO;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,45 +22,48 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @EqualsAndHashCode(of = { "id" })
 @Entity
-@Table(name = "ciclista")
-public class Ciclista {
+@Table(name = "cyclist")
+public class Cyclist {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
-    @Column(name = "nombre_completo")
-    private String nombreCompleto;
-    @Column (name = "edad")
-    private int edad;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ciclista")
-    private List<PruebaEsfuerzo> listaPruebasEsfuerzo;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "ciclista")
-    private List<Entrenamiento> listaEntrenamientos;
+    @Column(name = "fullname")
+    private String fullname;
+    @Column (name = "age")
+    private int age;
+    @Column (name = "category")
+    private String category;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "cyclist")
+    private List<IncrementalTest> listIncrementalTests;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "cyclist")
+    private List<Training> listTrainings;
 
 
-    public Ciclista(String nombreCompleto, int edad) {
-        this.nombreCompleto = nombreCompleto;
-        this.edad = edad;
+    public Cyclist(String fullname, int age) {
+        this.fullname = fullname;
+        this.age = age;
+        this.category = CyclistDTO.calculateCategory(age);
     }
 
-    public static Ciclista of(String nombreCompleto, int edad) {
-        return new Ciclista(nombreCompleto, edad);
+    public static Cyclist of(String fullname, int age) {
+        return new Cyclist(fullname, age);
     }
 
-    public void addPruebaEsfuerzo(PruebaEsfuerzo prueba) {
-        if (listaPruebasEsfuerzo == null) {
-            listaPruebasEsfuerzo = new ArrayList<PruebaEsfuerzo>();
+    public void addPruebaEsfuerzo(IncrementalTest incrementalTest) {
+        if (listIncrementalTests == null) {
+            listIncrementalTests = new ArrayList<IncrementalTest>();
         }
-        listaPruebasEsfuerzo.add(prueba);
-        prueba.setCiclista(this);
+        listIncrementalTests.add(incrementalTest);
+        incrementalTest.setCyclist(this);
     }
 
-    public void addEntrenamiento(Entrenamiento entto) {
-        if (listaEntrenamientos == null) {
-            listaEntrenamientos = new ArrayList<Entrenamiento>();
+    public void addEntrenamiento(Training training) {
+        if (listTrainings == null) {
+            listTrainings = new ArrayList<Training>();
         }
-        listaEntrenamientos.add(entto);
-        entto.setCiclista(this);
+        listTrainings.add(training);
+        training.setCyclist(this);
     }
 
     // public Impedancia findImpedancia(int dia, int mes, int año) {
