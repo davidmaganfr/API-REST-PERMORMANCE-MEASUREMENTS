@@ -10,22 +10,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
-import java.util.Optional;
-
-import com.performancemeasurements.performance_measurement.DAO.CyclistRepository;
 import com.performancemeasurements.performance_measurement.DTO.CyclistDTO;
+import com.performancemeasurements.performance_measurement.Service.CyclistService;
 import com.performancemeasurements.performance_measurement.entities.Cyclist;
 
-/**
- * Controller for managing cyclist resources
- * CyclistController
- */
+
 @RestController
 @RequestMapping("/cyclists")
 public class CyclistController {
 
     @Autowired
-    private CyclistRepository cyclistRepository;
+    private CyclistService cyclistService;
 
     /**
      * Find all cyclists of the database
@@ -33,101 +28,70 @@ public class CyclistController {
      * @return The list of all cyclists in the database
      */
     @GetMapping("/all")
-    public List<Cyclist> findAll() {
-        return cyclistRepository.findAll();
+    public List<CyclistDTO> findAll() {
+        return cyclistService.findAllCyclists();
     }
 
     /**
-     * Find a cyclist by id
+     * Controlador para obtener un ciclista por id y convertirlo a DTO
      * 
-     * @param id Id of the cyclist to find in the database
-     * @return The cyclist object DTO found by the specified id
+     * @param id Id del ciclista a buscar en la base de datos
+     * @return El objeto CyclistDTO encontrado por el id especificado
      */
     @GetMapping("/find/{id}")
     public CyclistDTO findById(@PathVariable int id) {
-        Optional<Cyclist> cyclist = cyclistRepository.findById(id);
-        if (!cyclist.isEmpty()) {
-            CyclistDTO cyclistDTO = new CyclistDTO(cyclist.get().getFullname(), cyclist.get().getAge());
-            return cyclistDTO;
-        } else {
-            throw new RuntimeException("Cyclist not found");
-        }
+        return cyclistService.findCyclistById(id);
     }
 
     /**
-     * Find a cyclist by fullname. For example, David Magan Fernandez
+     * Controlador para obtener una lista de ciclistas por nombre completo y 
+     * convertirlos a DTOs. Por ejemplo: fullname = "David Magan"
      * 
-     * @param fullname Fullname of the cyclist to find in the database
-     * @return The list of cyclists with the specified fullname
+     * @param fullname Nombre completo del ciclista a buscar en la base de datos
+     * @return Lista de objetos CyclistDTO encontrados con el nombre completo especificado
      */
     @GetMapping("/find/{fullname}")
     public List<CyclistDTO> findByName(@PathVariable String fullname) {
-        List<Cyclist> cyclists = cyclistRepository.findByFullname(fullname);
-        if (cyclists == null) {
-            throw new RuntimeException("Cyclist not found");
-        } else {
-            // Create a list of CyclistDTO with fuctional programming
-            List<CyclistDTO> cyclistDTOs = cyclists.stream()
-                    .map(cyclist -> new CyclistDTO(cyclist.getFullname(), cyclist.getAge()))
-                    .toList();
-            return cyclistDTOs;
-        }
+        return cyclistService.findCyclistByFullname(fullname);
     }
 
     /**
-     * Create a new cyclist
+     * Controlador para crear un nuevo ciclista en la base de datos
      * 
-     * @param cyclist Object with the data of the cyclist to create in the database
-     * @return The created cyclist object DTO
+     * @param cyclist Objeto con los datos del ciclista a crear en la base de datos
+     * @return El objeto CyclistDTO creado en la base de datos
      */
     @PostMapping("/create")
     public CyclistDTO create(@RequestBody Cyclist cyclist) {
-        if (cyclist != null) {
-            cyclistRepository.save(cyclist);
-            CyclistDTO cyclistDTO = new CyclistDTO(cyclist.getFullname(), cyclist.getAge());
-
-            return cyclistDTO;
-        }
-
-        return null;
-
+        return cyclistService.createCyclist(cyclist);
     }
 
     /**
-     * Update a cyclist by id
+     * Controlador para actualizar un ciclista existente en la base de datos por Id
      * 
-     * @param cyclist Object with the new data of the cyclist to update in the
-     *                database
-     * @param id      Id of the cyclist to update in the database
-     * @return The updated cyclist DTO object
+     * @param cyclist Entidad del ciclista con los datos actualizados
+     * @param id      Id del ciclista a actualizar en la base de datos
+     * @return El objeto CyclistDTO con los datos del ciclista actualizado en la base de datos
      * 
      */
     @PutMapping("/update/{id}")
     public CyclistDTO update(@RequestBody Cyclist cyclist, @PathVariable int id) {
-        if (cyclist != null) {
-            cyclist.setId(id);
-            if (!cyclistRepository.existsById(id)) {
-                throw new RuntimeException("Cyclist not found");
-            }
-            var cyclistUpdated = cyclistRepository.save(cyclist);
-            return new CyclistDTO(cyclistUpdated.getFullname(), cyclistUpdated.getAge());
-        }
-        return null;
+        return cyclistService.updateCyclistById(cyclist, id);
     }
 
     /**
-     * Delete a cyclist by id
+     * Controlador para eliminar un ciclista existente en la base de datos por Id
      * 
-     * @param id Id of the cyclist to delete in the database
+     * @param id Id del ciclista a eliminar en la base de datos
      */
     @DeleteMapping("/delete/{id}")
     public void delete(@PathVariable int id) {
-        cyclistRepository.deleteById(id);
+        cyclistService.deleteCyclistById(id);
     }
 
-    /** Delete all cyclists */
+    /** Controlador para eliminar todos los ciclistas de la base de datos */
     @DeleteMapping("/delete/all")
     public void deleteAll() {
-        cyclistRepository.deleteAll();
+        cyclistService.deleteAllCyclists();
     }
 }

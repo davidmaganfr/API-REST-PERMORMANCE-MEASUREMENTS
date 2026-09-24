@@ -8,8 +8,8 @@ import java.time.LocalDate;
 
 
 public interface TrainingRepository extends JpaRepository<Training, Integer>{
-    List<Training> findByDate(LocalDate fecha);
-    List<Training> findByCyclistId(int cyclistId);
+    List<Training> findTrainingsByDate(LocalDate fecha);
+    List<Training> findTrainingsByCyclistId(int cyclistId);
     Optional<Training> findByIdAndCyclistId(int trainingId, int cyclistId);
-    List<Training> findByCyclistIdAndDate(int cyclistId, LocalDate date);
+    List<Training> findTrainingsByCyclistIdAndDate(int cyclistId, LocalDate date);
 }
