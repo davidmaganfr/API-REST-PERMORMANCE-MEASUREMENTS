@@ -8,6 +8,7 @@ import lombok.Data;
 @Data 
 @AllArgsConstructor 
 public class TrainingDTO {
+    private int id;
     private LocalDate date;
     private LocalTime totalTimeSesion; //en horas:minutos:segundos
     private int avgPower;

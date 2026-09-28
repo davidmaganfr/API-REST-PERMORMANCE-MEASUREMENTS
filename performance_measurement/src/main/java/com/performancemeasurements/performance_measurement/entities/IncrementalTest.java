@@ -1,6 +1,6 @@
 package com.performancemeasurements.performance_measurement.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.LocalDate;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -20,14 +20,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PUBLIC)
 @EqualsAndHashCode(of = { "id" })
 @Entity
-@Table(name = "prueba_esfuerzo")
+@Table(name = "incremental_test")
 public class IncrementalTest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private int id;
     @Column(name = "date")
-    private String date;
+    private LocalDate date;
     @Column(name = "vo2max")
     private String vo2max;
     @Column (name = "vt1")
@@ -38,7 +38,7 @@ public class IncrementalTest {
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     private Cyclist cyclist;
 
-    public IncrementalTest(String date, String vo2max, String vt1, String vt2) {
+    public IncrementalTest(LocalDate date, String vo2max, String vt1, String vt2) {
         this.date = date;
         this.vo2max = vo2max;
         this.vt1 = vt1;

@@ -1,129 +1,103 @@
 package com.performancemeasurements.performance_measurement.Controllers;
 
-import com.performancemeasurements.performance_measurement.PerformanceMeasurementApplication;
 import java.util.List;
-import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import com.performancemeasurements.performance_measurement.DAO.CyclistRepository;
-import com.performancemeasurements.performance_measurement.DAO.IncrementalTestRepository;
 import com.performancemeasurements.performance_measurement.DTO.IncrementalTestDTO;
-import com.performancemeasurements.performance_measurement.entities.Cyclist;
+import com.performancemeasurements.performance_measurement.Service.IncrementalTestService;
 import com.performancemeasurements.performance_measurement.entities.IncrementalTest;
 
 @RestController
 @RequestMapping("/cyclists/{cyclistId}/incremental-tests")
 public class IncrementalTestController {
 
-        @Autowired
-        private IncrementalTestRepository incrementalTestRepository;
+        private final IncrementalTestService incrementalTestService;
 
-        @Autowired
-        private CyclistRepository cyclistRepository;
-
-        @GetMapping
-        public List<IncrementalTestDTO> findByCyclist(
-                        @PathVariable("cyclistId") int cyclistId) {
-
-                if (cyclistRepository.existsById(cyclistId)) {
-                        List<IncrementalTest> incrementalTests = incrementalTestRepository.findByCyclistId(cyclistId);
-                        return incrementalTests.stream()
-                                        .map(test -> new IncrementalTestDTO(
-                                                        test.getDate(),
-                                                        test.getVo2max(),
-                                                        test.getVt1(),
-                                                        test.getVt2()))
-                                        .toList();
-
-                } else {
-                        throw new RuntimeException("The cyclist with id: " + cyclistId + " does not exist");
-                }
+        IncrementalTestController(IncrementalTestService incrementalTestService) {
+                this.incrementalTestService = incrementalTestService;
         }
 
+        /**
+         * Controlador para buscar todos los test incrementales de un ciclista
+         * @param cyclistId Id de ciclista en la base de datos 
+         * @return Una lista con los datos de todos los test incrementales asociados a un ciclista determinado o Null si no existen
+         */
+        @GetMapping
+        public List<IncrementalTestDTO> findAllIncrementalTest(
+                        @PathVariable("cyclistId") int cyclistId) {
+
+                return incrementalTestService.findAllTestByCyclistId(cyclistId);
+        }
+
+        /**
+         * Controlador para buscar un test incremental asociado a un ciclista filtrando por la fecha de realización
+         * @param cyclistId Id del ciclista en el que queremos buscar un test
+         * @param date Fecha por la que queremos filtrar el/los tests
+         * @return Una lista de todos los test realizados para un ciclista en la fecha pasada por parametro
+         */
         @GetMapping("/date/{date}")
         public List<IncrementalTestDTO> findByDate(
                         @PathVariable("cyclistId") int cyclistId,
                         @PathVariable("date") String date) {
 
-                if (cyclistRepository.existsById(cyclistId)) {
-                        List<IncrementalTest> tests = incrementalTestRepository.findByCyclistIdAndDate(cyclistId, date);
-                        return tests.stream()
-                                        .map(test -> new IncrementalTestDTO(
-                                                        test.getDate(),
-                                                        test.getVo2max(),
-                                                        test.getVt1(),
-                                                        test.getVt2()))
-                                        .toList();
-                }
-
-                return null;
-
+                return incrementalTestService.findTestsByCyclistIdAndDate(cyclistId, date);
         }
 
+        /**
+         * Controlador para crear un nuevo test incremental asociado a un ciclista
+         * @param cyclistId Id del ciclista en el que queremos crear el test
+         * @param incrementalTest Objeto que contiene la informacion para crear el test en la base de datos
+         * @return Objeto IncrementalTestDTO con la informacion guardada en la base de datos
+         */
         @PostMapping
         @ResponseStatus(HttpStatus.CREATED)
-        public IncrementalTestDTO create(
+        public IncrementalTestDTO createTest(
                         @PathVariable("cyclistId") int cyclistId,
-                        @RequestBody IncrementalTest incrementalTest) {
+                        @RequestBody IncrementalTestDTO incrementalTest) {
 
-                if (cyclistRepository.existsById(cyclistId)) {
-                        Optional<Cyclist> cyclist = cyclistRepository.findById(cyclistId);
-                        incrementalTest.setCyclist(cyclist.get());
-
-                        IncrementalTest testCreated = incrementalTestRepository.save(incrementalTest);
-
-                        return testCreated != null ? new IncrementalTestDTO(
-                                        testCreated.getDate(),
-                                        testCreated.getVo2max(),
-                                        testCreated.getVt1(),
-                                        testCreated.getVt2()) : null;
-                } else {
-                        throw new RuntimeException("The cyclist with id: " + cyclistId + " does not exist");
-                }
+                return incrementalTestService.createIncrementalTest(cyclistId, incrementalTest);
         }
 
+        /**
+         * Controlador para actualizar los datos de un test incremental en la base de datos
+         * @param cyclistId Id del ciclista que contiene el test incremental a actualizar
+         * @param incrementalId Id del test que queremos modificar
+         * @param incrementalTest Objeto con los datos del test que queremos modificar
+         * @return Objeto IncrementalTestDTO con los datos del test recien modificado en la base de datos
+         */
         @PutMapping("/{incrementalId}")
-        public IncrementalTestDTO update(
+        public IncrementalTestDTO updateTest(
                         @PathVariable("cyclistId") int cyclistId,
                         @PathVariable("incrementalId") int incrementalId,
-                        @RequestBody IncrementalTest incrementalTest) {
+                        @RequestBody IncrementalTestDTO incrementalTest) {
 
-                IncrementalTest filteredTest = incrementalTestRepository
-                                .findById(incrementalId)
-                                .filter(test -> test.getCyclist().getId() == cyclistId)
-                                .orElseThrow(() -> new RuntimeException(
-                                                "No existe esa prueba para el ciclista"));
-
-                filteredTest.setDate(incrementalTest.getDate());
-                filteredTest.setVo2max(incrementalTest.getVo2max());
-                filteredTest.setVt1(incrementalTest.getVt1());
-                filteredTest.setVt2(incrementalTest.getVt2());
-
-                IncrementalTest updatedTest = incrementalTestRepository.save(filteredTest);
-
-                return updatedTest != null ? new IncrementalTestDTO(
-                                updatedTest.getDate(),
-                                updatedTest.getVo2max(),
-                                updatedTest.getVt1(),
-                                updatedTest.getVt2()) : null;
+                return incrementalTestService.updateTest(cyclistId, incrementalId, incrementalTest);
         }
 
+        /**
+         * Controlador para borrar un test incremental de un ciclista
+         * @param cyclistId Id del ciclista que contiene el test que deseamos borrar
+         * @param incrementalId Id del test que queremos eliminar de la base de datos
+         */
         @DeleteMapping("/{incrementalId}")
         @ResponseStatus(HttpStatus.NO_CONTENT)
-        public void delete(
-                @PathVariable("cyclistId") int cyclistId,
-                @PathVariable("incrementalId") int incrementalId) {
+        public void deleteTest(
+                        @PathVariable("cyclistId") int cyclistId,
+                        @PathVariable("incrementalId") int incrementalId) {
 
-                Optional<IncrementalTest> filteredTest = incrementalTestRepository
-                        .findById(incrementalId)
-                        .filter(test ->
-                                test.getCyclist().getId() == cyclistId);
-                
-                if (filteredTest.isPresent()) {
-                        incrementalTestRepository.delete(filteredTest.get());
-                }
-                
+                incrementalTestService.deleteIncrementalTest(cyclistId, incrementalId);
+
+        }
+
+        /**
+         * Controlador para eliminar todos los test incrementales asociados a un ciclista
+         * @param cyclistId Id del ciclista del que queremos eliminar todos los test
+         */
+        @DeleteMapping("/delete-all")
+        @ResponseStatus(HttpStatus.NO_CONTENT)
+        public void deleteAll(@PathVariable int cyclistId) {
+
+                incrementalTestService.deleteAllTestsFromCyclist(cyclistId);
         }
 
 }

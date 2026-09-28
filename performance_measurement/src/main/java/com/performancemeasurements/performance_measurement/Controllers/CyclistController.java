@@ -1,6 +1,5 @@
 package com.performancemeasurements.performance_measurement.Controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,8 +18,11 @@ import com.performancemeasurements.performance_measurement.entities.Cyclist;
 @RequestMapping("/cyclists")
 public class CyclistController {
 
-    @Autowired
-    private CyclistService cyclistService;
+    private final CyclistService cyclistService;
+
+    CyclistController(CyclistService cyclistService) {
+        this.cyclistService = cyclistService;
+    }
 
     /**
      * Find all cyclists of the database
@@ -38,7 +40,7 @@ public class CyclistController {
      * @param id Id del ciclista a buscar en la base de datos
      * @return El objeto CyclistDTO encontrado por el id especificado
      */
-    @GetMapping("/find/{id}")
+    @GetMapping("/find/id/{id}")
     public CyclistDTO findById(@PathVariable int id) {
         return cyclistService.findCyclistById(id);
     }
@@ -50,7 +52,7 @@ public class CyclistController {
      * @param fullname Nombre completo del ciclista a buscar en la base de datos
      * @return Lista de objetos CyclistDTO encontrados con el nombre completo especificado
      */
-    @GetMapping("/find/{fullname}")
+    @GetMapping("/find/name/{fullname}")
     public List<CyclistDTO> findByName(@PathVariable String fullname) {
         return cyclistService.findCyclistByFullname(fullname);
     }
@@ -62,7 +64,7 @@ public class CyclistController {
      * @return El objeto CyclistDTO creado en la base de datos
      */
     @PostMapping("/create")
-    public CyclistDTO create(@RequestBody Cyclist cyclist) {
+    public CyclistDTO create(@RequestBody CyclistDTO cyclist) {
         return cyclistService.createCyclist(cyclist);
     }
 
@@ -75,7 +77,7 @@ public class CyclistController {
      * 
      */
     @PutMapping("/update/{id}")
-    public CyclistDTO update(@RequestBody Cyclist cyclist, @PathVariable int id) {
+    public CyclistDTO update(@RequestBody CyclistDTO cyclist, @PathVariable int id) {
         return cyclistService.updateCyclistById(cyclist, id);
     }
 

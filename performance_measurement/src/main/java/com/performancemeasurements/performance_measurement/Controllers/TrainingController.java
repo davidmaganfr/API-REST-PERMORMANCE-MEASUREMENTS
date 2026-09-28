@@ -1,28 +1,22 @@
 package com.performancemeasurements.performance_measurement.Controllers;
 
 import java.util.List;
-import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import com.performancemeasurements.performance_measurement.DAO.CyclistRepository;
-import com.performancemeasurements.performance_measurement.DAO.TrainingRepository;
 import com.performancemeasurements.performance_measurement.DTO.TrainingDTO;
 import com.performancemeasurements.performance_measurement.Service.TrainingService;
-import com.performancemeasurements.performance_measurement.entities.Cyclist;
 import com.performancemeasurements.performance_measurement.entities.Training;
 
 @RestController
-@RequestMapping("/Cyclists/{cyclistId}/trainings")
+@RequestMapping("/cyclists/{cyclistId}/trainings")
 public class TrainingController {
 
 
-        @Autowired
-        private TrainingRepository trainingsRepository;
-        @Autowired
-        private CyclistRepository cyclistRepository;
-        @Autowired 
-        private TrainingService trainingService;
+        private final TrainingService trainingService;
+
+        TrainingController(TrainingService trainingService) {
+                this.trainingService = trainingService;
+        }
 
         /**
          * Controlador que obtiene todos los entrenamientos de un ciclista específico y 
@@ -62,21 +56,9 @@ public class TrainingController {
         @ResponseStatus(HttpStatus.CREATED)
         public TrainingDTO create(
                         @PathVariable int cyclistId,
-                        @RequestBody Training training) {
-                if (training != null) {
-                        Optional<Cyclist> cyclist = cyclistRepository.findById(cyclistId);
+                        @RequestBody TrainingDTO training) {
 
-                        training.setCyclist(cyclist.get());
-                        Training newTraining = trainingsRepository.save(training);
-
-                        return new TrainingDTO(
-                                        newTraining.getDate(),
-                                        newTraining.getTotalTimeSesion(),
-                                        newTraining.getAvgPower(),
-                                        newTraining.getNP());
-                }
-
-                return null;
+                return trainingService.createTraining(cyclistId, training);
 
         }
 
@@ -91,7 +73,7 @@ public class TrainingController {
         public TrainingDTO update(
                         @PathVariable int cyclistId,
                         @PathVariable int trainingId,
-                        @RequestBody Training newTraining) {
+                        @RequestBody TrainingDTO newTraining) {
 
                 return trainingService.updateTraining(cyclistId, trainingId, newTraining);
         }
@@ -115,6 +97,7 @@ public class TrainingController {
          * @param cyclistId Id del ciclista del que se quieren borrar los entrenamientos.
          */
         @DeleteMapping("/delete-all")
+        @ResponseStatus(HttpStatus.NO_CONTENT)
         public void deleteAll(@PathVariable int cyclistId) {
 
                 trainingService.deleteAllTrainingsByCyclistId(cyclistId);

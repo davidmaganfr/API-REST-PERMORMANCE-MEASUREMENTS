@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class CyclistDTO {
+    private int id;
     private String fullname;
     private int age;
     private String category;

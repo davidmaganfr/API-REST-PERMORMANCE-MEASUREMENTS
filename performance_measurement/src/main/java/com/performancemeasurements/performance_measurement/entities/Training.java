@@ -2,7 +2,6 @@ package com.performancemeasurements.performance_measurement.entities;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
