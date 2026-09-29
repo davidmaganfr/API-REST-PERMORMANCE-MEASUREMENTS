@@ -1,6 +1,8 @@
 package com.performancemeasurements.performance_measurement.Service;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,12 +89,18 @@ public class CyclistService {
         if (cyclist == null) {
             LOGGER.warn("El ciclista proporcionado viene como nulo y no tiene datos");
             return null;
-        } 
+        }
 
         Cyclist newCyclist = cyclistRepository.save(new Cyclist(cyclist.getFullname(), cyclist.getAge()));
         LOGGER.info("Ciclista creado con éxito: {}", newCyclist.getFullname());
-        return cyclist;
-        
+
+        CyclistDTO cyclistCreated = new CyclistDTO(
+                newCyclist.getFullname(),
+                newCyclist.getAge());
+
+        cyclistCreated.setId(newCyclist.getId());
+
+        return cyclistCreated;
 
     }
 
@@ -115,23 +123,38 @@ public class CyclistService {
      * @return El objeto CyclistDTO con los datos del ciclista actualizado en la
      *         base de datos, o null si no se pudo actualizar
      */
-    public CyclistDTO updateCyclistById(CyclistDTO cyclist, int id) {
+    public CyclistDTO updateCyclistById(CyclistDTO cyclist, int idCyclist) {
         if (cyclist == null) {
             LOGGER.warn("El ciclista proporcionado viene como nulo y no tiene datos");
             return null;
-        } 
+        }
 
-        cyclist.setId(id); // Le pongo sustituyo el id al ciclista para actualizar el correcto en la base
-                            // de datos
-        if (!cyclistRepository.existsById(id)) {
-            LOGGER.warn("No se encontró un ciclista con el id: {}. No se ha actualizado ningun ciclista", id);
+        Optional<Cyclist> optionalCyclist = cyclistRepository.findById(idCyclist);
+
+        if (optionalCyclist.isEmpty()) {
+            LOGGER.warn("No se encontró un ciclista con el id: {}. No se ha actualizado ningún ciclista",
+                    idCyclist);
             return null;
         }
-        Cyclist updatedCyclist = cyclistRepository.save(new Cyclist(cyclist.getFullname(), cyclist.getAge()));
+
+        Cyclist filteredCyclist = optionalCyclist.get();
+
+        filteredCyclist.setFullname(cyclist.getFullname());
+        filteredCyclist.setAge(cyclist.getAge());
+        filteredCyclist.setCategory(CyclistDTO.calculateCategory(cyclist.getAge()));
+
+        Cyclist updatedCyclist = cyclistRepository.save(filteredCyclist);
+
         LOGGER.info("Ciclista actualizado con éxito: {}", updatedCyclist.getFullname());
 
-        return cyclist;
-        
+        CyclistDTO updatedCyclistDTO = new CyclistDTO(
+                updatedCyclist.getFullname(),
+                updatedCyclist.getAge());
+
+        updatedCyclistDTO.setId(updatedCyclist.getId());
+
+        return updatedCyclistDTO;
+
     }
 
     /**

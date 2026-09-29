@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import com.performancemeasurements.performance_measurement.DTO.CyclistDTO;
 import com.performancemeasurements.performance_measurement.Service.CyclistService;
-import com.performancemeasurements.performance_measurement.entities.Cyclist;
 
 
 @RestController

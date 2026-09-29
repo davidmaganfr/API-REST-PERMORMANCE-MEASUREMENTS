@@ -55,7 +55,11 @@ public class TrainingService {
                         tr.getDate(),
                         tr.getTotalTimeSesion(),
                         tr.getAvgPower(),
-                        tr.getNP()))
+                        tr.getNP(),
+                        tr.getMaximumPower(),
+                        tr.getHeartRate(),
+                        tr.getAvgHeartRate(),
+                        tr.getMaximumHeartRate()))
                 .toList();
     }
 
@@ -87,7 +91,11 @@ public class TrainingService {
                             tr.getDate(),
                             tr.getTotalTimeSesion(),
                             tr.getAvgPower(),
-                            tr.getNP()))
+                            tr.getNP(),
+                            tr.getMaximumPower(),
+                            tr.getHeartRate(),
+                            tr.getAvgHeartRate(),
+                            tr.getMaximumHeartRate()))
                     .toList();
         } else {
             LOGGER.warn("El ciclista {} no existe con ese ID en la base de datos.", cyclistId);
@@ -113,14 +121,24 @@ public class TrainingService {
                 // Instancio un objeto de la entidad de training y le modifico el ciclista
                 // asociado
                 Training trainingEntity = new Training(training.getDate(), training.getTotalTimeSesion(),
-                        training.getAvgPower(), training.getNP());
+                    training.getAvgPower(), training.getNP(), training.getMaximumPower(),
+                    training.getHeartRate(), training.getAvgHeartRate(), training.getMaximumHeartRate());
                 trainingEntity.setCyclist(cyclist.get());
                 Training newTraining = trainingRepository.save(trainingEntity);
 
                 LOGGER.info("Se ha creado un nuevo entrenamiento para el ciclista con ID {}: {}", cyclistId,
                         newTraining);
 
-                return training;
+                return new TrainingDTO(
+                        newTraining.getId(),
+                        newTraining.getDate(),
+                        newTraining.getTotalTimeSesion(),
+                        newTraining.getAvgPower(),
+                        newTraining.getNP(),
+                        newTraining.getMaximumPower(),
+                        newTraining.getHeartRate(),
+                        newTraining.getAvgHeartRate(),
+                        newTraining.getMaximumHeartRate());
             }
 
         } else {
@@ -147,22 +165,41 @@ public class TrainingService {
 
         Optional<Training> optionalTraining = trainingRepository.findByIdAndCyclistId(trainingId, cyclistId);
 
-        if (optionalTraining.isPresent()) {
+        if (optionalTraining.isPresent() && newTraining != null) {
             Training filteredTraining = optionalTraining.get();
-            filteredTraining.setId(newTraining.getId());
+            // Modifico los campos editables, porque el id es un valor automatico que no
+            // debo tocar
             filteredTraining.setDate(newTraining.getDate());
             filteredTraining.setTotalTimeSesion(newTraining.getTotalTimeSesion());
             filteredTraining.setAvgPower(newTraining.getAvgPower());
             filteredTraining.setNP(newTraining.getNP());
+            filteredTraining.setMaximumPower(newTraining.getMaximumPower());
+            filteredTraining.setHeartRate(newTraining.getHeartRate());
+            filteredTraining.setAvgHeartRate(newTraining.getAvgHeartRate());
+            filteredTraining.setMaximumHeartRate(newTraining.getMaximumHeartRate());
 
             Training updatedTraining = trainingRepository.save(filteredTraining);
 
             LOGGER.info("Se ha actualizado el entrenamiento con ID {} para el ciclista con ID {}: {}", trainingId,
                     cyclistId, updatedTraining);
 
-            return newTraining;
+            return new TrainingDTO(
+                    updatedTraining.getId(),
+                    updatedTraining.getDate(),
+                    updatedTraining.getTotalTimeSesion(),
+                    updatedTraining.getAvgPower(),
+                    updatedTraining.getNP(),
+                    updatedTraining.getMaximumPower(),
+                    updatedTraining.getHeartRate(),
+                    updatedTraining.getAvgHeartRate(),
+                    updatedTraining.getMaximumHeartRate());
         } else {
-            LOGGER.warn("El entrenamiento con ID {} no existe para el ciclista con ID {}.", trainingId, cyclistId);
+            if (newTraining == null) {
+                LOGGER.warn("Los datos del entrenamiento son nulos.");
+            } else {
+                LOGGER.warn("El entrenamiento con ID {} no existe para el ciclista con ID {}.",
+                        trainingId, cyclistId);
+            }
             return null;
         }
     }

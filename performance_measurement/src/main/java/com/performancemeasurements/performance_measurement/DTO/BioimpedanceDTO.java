@@ -6,13 +6,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data 
-@AllArgsConstructor 
+@Data
 @NoArgsConstructor
-public class IncrementalTestDTO {
+@AllArgsConstructor
+public class BioimpedanceDTO {
     private int id;
     private LocalDate date;
-    private String vo2max;
-    private String vt1;
-    private String vt2;
+    private double weight;
+    private double height;
+    private double percentageFat;
+    private double percentageMuscle;
+    private double percentageWater;
 }

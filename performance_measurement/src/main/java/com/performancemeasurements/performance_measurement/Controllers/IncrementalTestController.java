@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import com.performancemeasurements.performance_measurement.DTO.IncrementalTestDTO;
 import com.performancemeasurements.performance_measurement.Service.IncrementalTestService;
-import com.performancemeasurements.performance_measurement.entities.IncrementalTest;
 
 @RestController
 @RequestMapping("/cyclists/{cyclistId}/incremental-tests")

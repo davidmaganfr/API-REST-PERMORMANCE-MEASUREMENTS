@@ -106,7 +106,15 @@ public class IncrementalTestService {
                 LOGGER.info("Se ha creado un nuevo test incremental para el ciclista con ID {}: {}", cyclistId,
                         newTest);
 
-                return test;
+                return new IncrementalTestDTO(
+                        newTest.getId(),
+                        newTest.getDate(),
+                        newTest.getVo2max(),
+                        newTest.getVt1(),
+                        newTest.getVt2());
+            } else {
+                LOGGER.warn("No se encontró un ciclista con el ID {}. No se ha creado el test incremental.",
+                        cyclistId);
             }
 
         } else {
@@ -136,7 +144,6 @@ public class IncrementalTestService {
 
         if (optinalTest.isPresent()) {
             IncrementalTest filteredTest = optinalTest.get();
-            filteredTest.setId(newTest.getId());
             filteredTest.setDate(newTest.getDate());
             filteredTest.setVo2max(newTest.getVo2max());
             filteredTest.setVt1(newTest.getVt1());
@@ -147,9 +154,15 @@ public class IncrementalTestService {
             LOGGER.info("Se ha actualizado el test incremental con ID {} para el ciclista con ID {}: {}",
                     incrementalTestId, cyclistId, updatedTest);
 
-            return newTest;
+            return new IncrementalTestDTO(
+                    updatedTest.getId(),
+                    updatedTest.getDate(),
+                    updatedTest.getVo2max(),
+                    updatedTest.getVt1(),
+                    updatedTest.getVt2());
+                    
         } else {
-            LOGGER.warn("El entrenamiento con ID {} no existe para el ciclista con ID {}.", incrementalTestId,
+            LOGGER.warn("El test incremental con ID {} no existe para el ciclista con ID {}.", incrementalTestId,
                     cyclistId);
             return null;
         }

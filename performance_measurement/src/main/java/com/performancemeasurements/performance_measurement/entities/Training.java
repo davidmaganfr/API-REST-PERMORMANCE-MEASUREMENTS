@@ -34,24 +34,47 @@ public class Training {
     private int avgPower;
     @Column(name = "NP")
     private int NP;
+    @Column(name = "maximum_power")
+    private int maximumPower;
+    @Column(name= "heart_rate")
+    private int heartRate;
+    @Column (name = "avg_hr")
+    private int avgHeartRate;
+    @Column(name = "maximum_hr")
+    private int maximumHeartRate;
     @JoinColumn(name = "cyclist_id")
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
     private Cyclist cyclist;
 
-    public Training(LocalDate date, LocalTime totalTimeSesion, int avgPower, int NP) {
+
+
+    public Training(LocalDate date, LocalTime totalTimeSesion, int avgPower, int np, int maximumPower, int heartRate,
+            int avgHeartRate, int maximumHeartRate) {
         this.date = date;
         this.totalTimeSesion = totalTimeSesion;
         this.avgPower = avgPower;
-        this.NP = NP;
+        this.NP = np;
+        this.maximumPower = maximumPower;
+        this.heartRate = heartRate;
+        this.avgHeartRate = avgHeartRate;
+        this.maximumHeartRate = maximumHeartRate;
     }
-    public static Training of(LocalDate date, LocalTime totalTimeSesion, int avgPower, int NP){
-        return new Training(date, totalTimeSesion, avgPower, NP);
+
+    public static Training of(LocalDate date, LocalTime totalTimeSesion, int avgPower, int np,
+            int maximumPower, int heartRate, int avgHeartRate, int maximumHeartRate) {
+        return new Training(date, totalTimeSesion, avgPower, np, maximumPower, heartRate, avgHeartRate,
+                maximumHeartRate);
     }
+
     @Override
     public String toString() {
-        return "Entrenamiento [id=" + id + ", date=" + date + ", totalTimeSesion=" + totalTimeSesion + ", avgPower="
-                + avgPower + ", NP=" + NP + "]";
+        return "Training [id=" + id + ", date=" + date + ", totalTimeSesion=" + totalTimeSesion + ", avgPower="
+                + avgPower + ", NP=" + NP + ", maximumPower=" + maximumPower + ", heartRate=" + heartRate
+                + ", avgHeartRate=" + avgHeartRate + ", maximumHeartRate=" + maximumHeartRate + ", cyclist=" + cyclist
+                + "]";
     }
+
+    
 
     
 }

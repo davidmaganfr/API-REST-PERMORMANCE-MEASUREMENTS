@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import com.performancemeasurements.performance_measurement.DTO.TrainingDTO;
 import com.performancemeasurements.performance_measurement.Service.TrainingService;
-import com.performancemeasurements.performance_measurement.entities.Training;
 
 @RestController
 @RequestMapping("/cyclists/{cyclistId}/trainings")

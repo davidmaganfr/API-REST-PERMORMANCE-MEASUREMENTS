@@ -1,8 +1,10 @@
 package com.performancemeasurements.performance_measurement.DTO;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class CyclistDTO {
     private int id;
     private String fullname;
