@@ -43,7 +43,7 @@ public class Training {
     @Column(name = "maximum_hr")
     private int maximumHeartRate;
     @JoinColumn(name = "cyclist_id")
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToOne
     private Cyclist cyclist;
 
 

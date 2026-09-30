@@ -1,7 +1,6 @@
 package com.performancemeasurements.performance_measurement.entities;
 
 import java.time.LocalDate;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,7 +34,7 @@ public class IncrementalTest {
     @Column(name = "vt2")
     private String vt2;
     @JoinColumn(name = "cyclist_id")
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @ManyToOne
     private Cyclist cyclist;
 
     public IncrementalTest(LocalDate date, String vo2max, String vt1, String vt2) {

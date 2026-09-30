@@ -11,6 +11,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -34,10 +36,15 @@ public class Cyclist {
     private int age;
     @Column (name = "category")
     private String category;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "cyclist")
+    @JoinColumn(name = "coach_id")
+    @ManyToOne
+    private Coach coach;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "incremental_test")
     private List<IncrementalTest> listIncrementalTests;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "cyclist")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "training")
     private List<Training> listTrainings;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "bioimpedance")
+    private List<Training> listBioimpedances;
 
 
     public Cyclist(String fullname, int age) {
